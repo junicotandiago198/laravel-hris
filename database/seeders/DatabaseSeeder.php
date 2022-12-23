@@ -30,7 +30,7 @@ class DatabaseSeeder extends Seeder
         // \App\Models\Responsibility::factory(10)->create();
 
         // FACTORY EMPLOYEE
-        \App\Models\Employee::factory(100)->create();
+        // \App\Models\Employee::factory(100)->create();
 
         // \App\Models\User::factory()->create([
         //     'name' => 'Test User',
