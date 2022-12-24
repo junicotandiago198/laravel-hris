@@ -9,6 +9,7 @@ use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Laravel\Fortify\Rules\Password;
 
 class UserController extends Controller
 {
@@ -41,10 +42,43 @@ class UserController extends Controller
                 'access_token' => $tokenResult,
                 'token_type' => 'Bearer',
                 'user'  => $user
-            ], 'Authentication success');
+            ], 'Login success');
 
-        } catch (Exception $e) {
+        } catch (Exception $error) {
             return ResponseFormatter::error('Authentication Failed');
+        }
+    }
+
+    public function register(Request $request)
+    {
+        try {
+            // Validate request
+            $request->validate([
+                'name'      => ['required', 'string', 'max:255'],
+                'email'     => ['required', 'string', 'email', 'max:255', 'unique:users'],
+                'password'  => ['required', 'string', new Password],
+            ]);
+
+            // Create User
+            $user = User::create([
+                'name'      => $request->name,
+                'email'     => $request->email,
+                'password'  => Hash::make($request->password),
+            ]);
+
+            // Generate token
+            $tokenResult = $user->createToken('authToken')->plainTextToken;
+
+            // Return response
+            return ResponseFormatter::success([
+                'access_token' => $tokenResult,
+                'token_type' => 'Bearer',
+                'user'  => $user
+            ], 'Register success');
+
+        } catch (Exception $error) {
+            // Return error response
+            return ResponseFormatter::error($error->getMessage());
         }
     }
 }

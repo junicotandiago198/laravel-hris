@@ -24,3 +24,4 @@ Route::get('/company', [CompanyController::class, 'all']);
 
 // ROUTE API AUTH
 Route::post('login', [UserController::class, 'login']);
+Route::post('register', [UserController::class, 'register']);
