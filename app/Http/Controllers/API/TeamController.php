@@ -5,13 +5,49 @@ namespace App\Http\Controllers\API;
 use Exception;
 use App\Models\Team;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use App\Helpers\ResponseFormatter;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\CreateTeamRequest;
 use App\Http\Requests\UpdateTeamRequest;
 
 class TeamController extends Controller
 {
+    public function fetch(Request $request)
+    {
+        $id = $request->input('id');
+        $name = $request->input('name');
+        $limit = $request->input('limit', 10);
+
+        $teamQuery = Team::query();
+
+        // Get single data
+        if($id)
+        {
+            $team = $teamQuery->find($id);
+
+            if($team)
+            {
+                return ResponseFormatter::success($team, 'Team found');
+            }
+
+            return ResponseFormatter::error('Team not found', 404);
+        }
+
+        // Get multiple data
+        $teams = $teamQuery->where('company_id', $request->company_id);
+
+        // powerhuman.com/api/team?name=Kunde
+        if($name) {
+            $teams->where('name', 'like', '%' . $name . '%');
+        }
+
+        return ResponseFormatter::success(
+            $teams->paginate($limit),
+            'Teams found'
+        );
+    }
+
     public function create(CreateTeamRequest $request)
     {
         try {
@@ -25,10 +61,10 @@ class TeamController extends Controller
             $team = Team::create([
                 'name'          => $request->name,
                 'icon'          => $path,
-                'company_id'    => $request->company_id
+                'team_id'    => $request->team_id
             ]);
 
-            // condition company request null
+            // condition team request null
             if(!$team)
             {
                 throw new Exception('Team not created');
@@ -47,7 +83,7 @@ class TeamController extends Controller
             // Get team
             $team = Team::find($id);
 
-            // Check if company exists
+            // Check if team exists
             if(!$team)
             {
                 throw new Exception('Team not found');
@@ -58,7 +94,7 @@ class TeamController extends Controller
                 $path = $request->file('icon')->store('public/icons');
             }
 
-            // Update Company
+            // Update Team
             Team::where('id', $id)->update($request->all());
             
             return ResponseFormatter::success($team, 'Team updated');
