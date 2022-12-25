@@ -103,4 +103,25 @@ class TeamController extends Controller
             return ResponseFormatter::error($e->getMessage(), 500);
         }
     }
+
+    public function destroy($id)
+    {
+        try {
+            // Get team
+            $team = Team::find($id);
+
+            // TODO: Check if team is owned by user login
+
+            if (!$team) {
+                throw new Exception('Team not found');
+            }
+
+            // Delete team
+            $team->delete();
+
+            return ResponseFormatter::success('Team deleted');
+        } catch (Exception $e) {
+            return ResponseFormatter::error($e->getMessage(), 500);
+        }
+    }
 }
