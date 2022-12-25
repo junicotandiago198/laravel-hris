@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Helpers\ResponseFormatter;
 use App\Http\Requests\CreateTeamRequest;
+use App\Http\Requests\UpdateTeamRequest;
 
 class TeamController extends Controller
 {
@@ -34,6 +35,33 @@ class TeamController extends Controller
             }
 
             return ResponseFormatter::success($team, 'Team Created');
+            
+        } catch (Exception $e) {
+            return ResponseFormatter::error($e->getMessage(), 500);
+        }
+    }
+
+    public function update(UpdateTeamRequest $request, $id)
+    {
+        try {
+            // Get team
+            $team = Team::find($id);
+
+            // Check if company exists
+            if(!$team)
+            {
+                throw new Exception('Team not found');
+            }
+
+            // Upload logo
+            if ($request->hasFile('icon')) {
+                $path = $request->file('icon')->store('public/icons');
+            }
+
+            // Update Company
+            Team::where('id', $id)->update($request->all());
+            
+            return ResponseFormatter::success($team, 'Team updated');
             
         } catch (Exception $e) {
             return ResponseFormatter::error($e->getMessage(), 500);
