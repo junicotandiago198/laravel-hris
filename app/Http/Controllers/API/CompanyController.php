@@ -20,12 +20,14 @@ class CompanyController extends Controller
         $name = $request->input('name');
         $limit = $request->input('limit', 10);
 
+        $companyQuery = Company::with(['users'])->whereHas('users', function ($query){
+            $query->where('user_id', Auth::id());
+        });
+
         // powerhuman.com/api/company?id=1
         if($id)
         {
-            $company = Company::whereHas('users', function ($query) {
-                $query->where('user_id', Auth::id());
-            })->with(['users'])->find($id);
+            $company = $companyQuery->find($id);
 
             if($company)
             {
@@ -36,9 +38,7 @@ class CompanyController extends Controller
         }
 
         // powerhuman.com/api/company
-        $companies = Company::with(['users'])->whereHas('users', function ($query) {
-            $query->where('user_id', Auth::id());
-        });
+        $companies = $companyQuery;
 
         // powerhuman.com/api/company?name=Kunde
         if($name) {
