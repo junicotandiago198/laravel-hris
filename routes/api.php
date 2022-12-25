@@ -16,12 +16,20 @@ use App\Http\Controllers\API\UserController;
 |
 */
 
-// ROUTE API AUTH
-Route::post('login', [UserController::class, 'login']);
-Route::post('register', [UserController::class, 'register']);
-Route::post('logout', [UserController::class, 'logout'])->middleware('auth:sanctum');
-Route::get('user', [UserController::class, 'fetch'])->middleware('auth:sanctum');
+// ROUTE COMPANY API
+Route::prefix('company')->middleware('auth:sanctum')->name('company.')->group (function () {
+    Route::get('', [CompanyController::class, 'fetch'])->name('fetch');
+    Route::post('', [CompanyController::class, 'create'])->name('create');
+    Route::post('update/{id}', [CompanyController::class, 'update'])->name('update');
+});
 
-// ROUTE API COMPANY
-Route::get('/company', [CompanyController::class, 'all']);
-Route::post('company', [CompanyController::class, 'create'])->middleware('auth:sanctum');
+// ROUTE AUTH API
+Route::name('auth.')->group (function () {
+    Route::post('login', [UserController::class, 'login'])->name('login');
+    Route::post('register', [UserController::class, 'register'])->name('register');
+
+    Route::middleware('auth:sanctum')->group (function () {
+        Route::post('logout', [UserController::class, 'logout'])->name('logout');
+        Route::get('user', [UserController::class, 'fetch'])->name('fetch');
+    });
+});
