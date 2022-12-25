@@ -61,7 +61,7 @@ class TeamController extends Controller
             $team = Team::create([
                 'name'          => $request->name,
                 'icon'          => $path,
-                'team_id'    => $request->team_id
+                'company_id'    => $request->company_id
             ]);
 
             // condition team request null
@@ -95,7 +95,11 @@ class TeamController extends Controller
             }
 
             // Update Team
-            Team::where('id', $id)->update($request->all());
+            $team->update([
+                'name'      => $request->name,
+                'icon'      => $path,
+                'company_id'   => $request->company_id
+            ]);
             
             return ResponseFormatter::success($team, 'Team updated');
             
