@@ -104,7 +104,10 @@ class CompanyController extends Controller
             }
 
             // Update Company
-            Company::where('id', $id)->update($request->all());
+            $company->update([
+                'name'    => $request->name,
+                'logo'    => isset($path) ? $path : $company->logo,
+            ]);
             
             return ResponseFormatter::success($company, 'Company updated');
             
